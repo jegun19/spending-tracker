@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+{% extends 'base.html' %}
+
+{% block title %}Add New Transaction{% endblock %}
+
+
+{% block content %}
+{% if user.is_authenticated %}
+
+<ul style="
+list-style-type: none;
+margin: 0;
+padding: 5px;
+overflow: hidden;
+background-color: #333;">
+    <li style="display: inline; float:left;"><a style="display: block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;" href="{% url 'home' %}">Home</a></li>
+    <li style="display: inline; float:left;"><a style="display: block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;" href="{% url 'show' %}">View/Update</a></li>
+    <li style="display: inline; float:left;"><a style="display: block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;" href="{% url 'logout' %}">Log Out</a></li>
+</ul>
+<br>
+
+    <form method="post">
+        <div class="container" style="padding: 0px;margin: 0px auto 0px auto;">
+            <h5 class="text-primary text-center">
+                Hi {{ user.username }}, please add information below
+            </h5>
+        </div>
+        <div class="container" style="padding: 0px;margin: 0px auto 0px auto;">
+        <br>
+        <div class="form-group row">
+            <label class="col-lg-4 col-lg-offset-4 col-form-label"></label>
+            <div class="col-lg-4 col-lg-offset-4 text-center">
+            <h3>Input Details</h3>
+            </div>
+        </div>
+            {% csrf_token %}
+<!--        {{ form.as_p }}-->
+            {{ form.user.label_tag.as_hidden }}
+            {{ form.user.errors }}
+            {{ form.user.as_hidden }}
+        <div class="form-group row">
+            <label class="col-lg-4 col-lg-offset-4 col-form-label">{{ form.date.label_tag }}</label>
+            <div class="col-lg-4 col-lg-offset-4 text-center">
+<!--                {{ form.date.label_tag }}-->
+                {{ form.date.errors }}
+                {{ form.date }}
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-lg-4 col-lg-offset-4 col-form-label">{{ form.amount.label_tag }}</label>
+            <div class="col-lg-4 col-lg-offset-4 text-center">
+<!--                {{ form.date.label_tag }}-->
+                {{ form.amount.errors }}
+                {{ form.amount }}
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-lg-4 col-lg-offset-4 col-form-label">{{ form.currency.label_tag }}</label>
+            <div class="col-lg-4 col-lg-offset-4 text-center">
+<!--                {{ form.date.label_tag }}-->
+                {{ form.currency.errors }}
+                {{ form.currency }}
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <label class="col-lg-4 col-lg-offset-4 col-form-label">{{ form.category.label_tag }}</label>
+            <div class="col-lg-4 col-lg-offset-4 text-center">
+<!--                {{ form.date.label_tag }}-->
+                {{ form.category.errors }}
+                {{ form.category }}
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-lg-4 col-lg-offset-4 col-form-label">{{ form.note.label_tag }}</label>
+            <div class="col-lg-4 col-lg-offset-4 text-center">
+<!--                {{ form.date.label_tag }}-->
+                {{ form.note.errors }}
+                {{ form.note }}
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-lg-4 col-lg-offset-4 col-form-label">{{ form.label.label_tag }}</label>
+            <div class="col-lg-4 col-lg-offset-4  text-center">
+<!--                {{ form.date.label_tag }}-->
+                {{ form.label.errors }}
+                {{ form.label }}
+            </div>
+        </div>
+            <div class="text-center">
+                <button type="submit" class="btn btn-success" style="margin: auto;">Submit</button>
+            </div>
+        </div>
+
+    </form>
+
+{% else %}
+  <p>You are not logged in</p>
+  <a href="{% url 'login' %}">Log In</a>
+{% endif %}
+{% endblock %}
+
+</body>
+</html>

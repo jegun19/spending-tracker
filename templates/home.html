@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Home</title>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
+</head>
+<body>
+{% extends 'base.html' %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+{% if user.is_authenticated %}
+<div class="header" style="padding: 10px;
+margin:auto;
+  text-align: center;
+  background: #1abc9c;
+  color: white;
+  font-size: 20px;">
+  <h2>Hi, {{ user.username }}!</h2>
+</div>
+
+<ul style="
+list-style-type: none;
+margin: 0;
+padding: 5px;
+overflow: hidden;
+background-color: #333;">
+    <li style="display: inline; float:left;"><a style="display: block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;" href="{% url 'add transaction' %}">Add</a></li>
+    <li style="display: inline; float:left;"><a style="display: block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;" href="{% url 'show' %}">View/Update</a></li>
+    <li style="display: inline; float:left;"><a style="display: block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;" href="{% url 'logout' %}">Log Out</a></li>
+</ul>
+<br>
+<div style="width:60%; margin:auto;" class="col-lg-4 col-lg-offset-4">
+    <h4>Change Mode:</h4>
+<select class="models" id="models" name="models" multiple="multiple">
+    <option selected="selected">Overall</option>
+    <option>By Category</option>
+<!--    <option>By Time</option>-->
+</select>
+<!--<label for="categories_select">Choose a category:</label>-->
+
+<select class="categories_select" id="categories_select" name="categories_select" multiple="multiple" style="display: none;">
+    <option >Food</option>
+    <option>Travel</option>
+    <option>Healthcare</option>
+    <option>Entertainment</option>
+    <option>Bills</option>
+    <option>Other</option>
+</select>
+
+<select class="order_by" id="order_by" name="order_by" multiple="multiple" style="display: none;">
+    <option>By Time</option>
+    <option>By Amount</option>
+</select>
+</div>
+
+<div id="container" style="width: 60%; margin: auto;">
+    <canvas id="records-chart" data-url="{% url 'chart' %}">
+    </canvas>
+</div>
+
+<script>
+    $(function () {
+        var $recordsChart = $("#records-chart");
+        $.ajax({
+            url: $recordsChart.data("url"),
+            success: function (data) {
+                var ctx = $recordsChart[0].getContext("2d");
+
+                new Chart(ctx, {
+                    type: "doughnut",
+                    data: {
+                        labels: data.labels,
+                        datasets: [{
+                            label: 'Spending',
+                            backgroundColor: [
+                                'rgba(107,202,88,0.5)',
+                                'rgba(204,102,0,0.5)',
+                                'rgba(41,180,230,0.5)',
+                                'rgba(219,85,107,0.5)',
+                                'rgba(255,255,102,0.5)',
+                                'rgba(255,0,0,0.5)',
+                                ],
+                            data: data.data
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        legend: {
+                            display: true
+                        },
+                        title: {
+                            display: true,
+                            text: "Overview",
+                        }
+                    }
+                });
+            }
+        });
+    });
+</script>
+<div style="width:60%; margin: auto;">
+    <canvas id="daily-chart" hidden data-url="{% url 'group record' %}">
+    </canvas>
+    <canvas id="weekly-chart" hidden data-url="{% url 'group record' %}">
+    </canvas>
+    <canvas id="monthly-chart" hidden data-url="{% url 'group record' %}">
+    </canvas>
+</div>
+<script>
+var secondoption = document.getElementById("categories_select");
+var thirdoption = document.getElementById("order_by");
+var $dailyChart = $("#daily-chart");
+var $weeklyChart = $("#weekly-chart");
+var $monthlyChart = $("#monthly-chart");
+
+var ctx_daily = $dailyChart[0].getContext("2d");
+$("#models").change(function (){
+    console.log($(this).val());
+    if ($(this).val() == 'By Category'){
+        secondoption.style.display = 'inline';
+        secondoption.selectedIndex = -1;
+        thirdoption.style.display = 'inline';
+        thirdoption.selectedIndex = -1;
+<!--        $("#categories_select option:selected").removeAttr('selected');-->
+        $("#records-chart").attr('hidden', 'hidden');
+    } else {
+        secondoption.style.display = 'none';
+        thirdoption.style.display = 'none';
+        $("#daily-chart").attr('hidden', 'hidden');
+        $("#weekly-chart").attr('hidden', 'hidden');
+        $("#monthly-chart").attr('hidden', 'hidden');
+        $("#records-chart").removeAttr('hidden');
+    }
+}).trigger('click');
+
+var ctx_daily = $dailyChart[0].getContext("2d");
+var ctx_weekly = $weeklyChart[0].getContext("2d");
+var ctx_monthly = $monthlyChart[0].getContext("2d");
+
+let dailychart = new Chart(ctx_daily, {
+                    type: "bar",
+                    data: {
+                        labels: ['', '', '', '', '', '', ''],
+                        datasets: [{
+                            label: 'Spending',
+                            backgroundColor: [
+                                'rgba(107,202,88,0.5)',
+                                'rgba(204,102,0,0.5)',
+                                'rgba(41,180,230,0.5)',
+                                'rgba(219,85,107,0.5)',
+                                'rgba(255,255,102,0.5)',
+                                'rgba(255,0,0,0.5)',
+                                'rgba(0,255,0,0.5)',
+                                ],
+                            data: [0, 0, 0, 0, 0, 0, 0]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            yAxes: [{
+                                ticks: {
+                                    beginAtZero:true
+                                },
+                                scaleLabel: {
+                                    display:true,
+                                    labelString: 'NTD'
+                                }
+                            }]
+                        },
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: "Daily Overview",
+                        }
+                    }
+                });
+
+let weeklychart = new Chart(ctx_weekly, {
+                    type: "line",
+                    data: {
+                        labels: [''],
+                        datasets: [{
+                            label: 'Spending',
+                            backgroundColor: 'rgba(125,0,0,0.5)',
+                            data: [0, 0, 0, 0, 0]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            yAxes: [{
+                                ticks: {
+                                    beginAtZero:true
+                                },
+                                scaleLabel: {
+                                    display:true,
+                                    labelString: 'NTD'
+                                }
+                            }]
+                        },
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: "Weekly Overview",
+                        }
+                    }
+                });
+
+let monthlychart = new Chart(ctx_monthly, {
+                    type: "line",
+                    data: {
+                        labels: [''],
+                        datasets: [{
+                            label: 'Spending',
+                            backgroundColor: 'rgba(1,0,225,0.5)',
+                            data: [0, 0, 0, 0, 0, 0, 0]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            yAxes: [{
+                                ticks: {
+                                    beginAtZero:true
+                                },
+                                scaleLabel: {
+                                    display:true,
+                                    labelString: 'NTD'
+                                }
+                            }]
+                        },
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: "Monthly Overview",
+                        }
+                    }
+                });
+
+$("#categories_select").change(function (){
+    console.log($(this).val());
+    var choice = $(this).val();
+
+    thirdoption.style.display = 'inline';
+    thirdoption.selectedIndex = -1;
+
+
+}).trigger('click');
+
+$("#order_by").change(function (){
+    console.log($(this).val());
+    var category = $("#categories_select").val();
+    console.log(category);
+    var choice = $(this).val();
+
+    $("#daily-chart").removeAttr('hidden');
+    $("#weekly-chart").removeAttr('hidden');
+    $("#monthly-chart").removeAttr('hidden');
+
+    $.ajax({
+        type:"GET",
+        url: "/group_record",
+        data:{
+            category: category,
+            orderby: choice
+        },
+        success: function(data) {
+            console.log(data);
+
+            dailychart.destroy();
+            weeklychart.destroy();
+            monthlychart.destroy();
+
+            dailychart = new Chart(ctx_daily, {
+                    type: "bar",
+                    data: {
+                        labels: data.dailylabel,
+                        datasets: [{
+                            label: 'Spending',
+                            backgroundColor: [
+                                'rgba(107,202,88,0.5)',
+                                'rgba(204,102,0,0.5)',
+                                'rgba(41,180,230,0.5)',
+                                'rgba(219,85,107,0.5)',
+                                'rgba(255,255,102,0.5)',
+                                'rgba(255,0,0,0.5)',
+                                'rgba(0,255,0,0.5)',
+                                ],
+                            data: data.dailydata
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            yAxes: [{
+                                ticks: {
+                                    beginAtZero:true
+                                },
+                                scaleLabel: {
+                                    display:true,
+                                    labelString: 'NTD'
+                                }
+                            }]
+                        },
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: "Daily Overview",
+                        }
+                    }
+                });
+
+            weeklychart = new Chart(ctx_weekly, {
+                    type: "line",
+                    data: {
+                        labels: data.weeklylabel,
+                        datasets: [{
+                            label: 'Spending',
+                            backgroundColor: 'rgba(125,0,0,0.5)',
+                            data: data.weeklydata
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            yAxes: [{
+                                ticks: {
+                                    beginAtZero:true
+                                },
+                                scaleLabel: {
+                                    display:true,
+                                    labelString: 'NTD'
+                                }
+                            }]
+                        },
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: "Weekly Overview",
+                        }
+                    }
+                });
+
+            monthlychart = new Chart(ctx_monthly, {
+                    type: "line",
+                    data: {
+                        labels: data.monthlylabel,
+                        datasets: [{
+                            label: 'Spending',
+                            backgroundColor: 'rgba(1,0,225,0.5)',
+                            data: data.monthlydata
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            yAxes: [{
+                                ticks: {
+                                    beginAtZero:true
+                                },
+                                scaleLabel: {
+                                    display:true,
+                                    labelString: 'NTD'
+                                }
+                            }]
+                        },
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: "Monthly Overview",
+                        }
+                    }
+                });
+        }
+    })
+}
+).trigger('click');
+</script>
+{% else %}
+<div class="container text-center" style="width: 60%; margin: auto;">
+    <h2>You are not logged in</h2>
+    <button class="btn">
+        <a href="{% url 'login' %}">Log In</a>
+    </button>
+</div>
+
+{% endif %}
+{% endblock %}
+</body>
+</html>

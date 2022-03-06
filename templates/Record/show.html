@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Summary</title>
+</head>
+<body>
+{% extends 'base.html' %}
+{% block title %}Summary{% endblock %}
+
+{% block content %}
+{% if user.is_authenticated %}
+
+<ul style="
+list-style-type: none;
+margin: 0;
+padding: 5px;
+overflow: hidden;
+background-color: #333;">
+    <li style="display: inline; float:left;"><a style="display: block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;" href="{% url 'home' %}">Home</a></li>
+    <li style="display: inline; float:left;"><a style="display: block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;" href="{% url 'add transaction' %}">Add</a></li>
+    <li style="display: inline; float:left;"><a style="display: block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;" href="{% url 'logout' %}">Log Out</a></li>
+</ul>
+
+<br>
+<div class="table-wrapper" style="max-height: 500px;
+	width: 1000px;
+	padding: 0px;
+	margin: 0px auto 0px auto;
+	overflow: auto;">
+
+<table class="table table-bordered table-striped">
+  <thead>
+    <tr>
+      <th scope="col">Date</th>
+      <th scope="col">Amount</th>
+      <th scope="col">Currency</th>
+      <th scope="col">Category</th>
+      <th scope="col">Note</th>
+      <th scope="col">Label</th>
+      <th scope="col">
+        Edit/Delete
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for record in records %}
+  <tr>
+<!--    <td>{{ record.user }}</td>-->
+<!--    <td>{{ record.id }}</td>-->
+    <td>{{ record.date }}</td>
+    <td>{{ record.amount }}</td>
+    <td>{{ record.currency }}</td>
+    <td>{{ record.category }}</td>
+    <td>{{ record.note }}</td>
+    <td>{{ record.label }}</td>
+    <td>
+       <a href="/edit/{{ record.id }}"><span class="glyphicon glyphicon-pencil" >Edit</span></a>
+        <a href="/delete/{{ record.id }}"><span class="glyphicon glyphicon-pencil" >Delete</span></a>
+    </td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+
+{% else %}
+  <p>You are not logged in</p>
+  <a href="{% url 'login' %}">Log In</a>
+{% endif %}
+{% endblock %}
+</body>
+</html>

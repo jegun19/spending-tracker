@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+</head>
+<body>
+{% extends 'base.html' %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<!--<div id="container" style="width: 60%; margin: auto;">-->
+
+<form method="post" style="width: 60%; margin: auto;">
+    <div class="container" style="width: 60%; margin: auto;">
+        <h2 style="width: 60%; margin: auto;">Log In</h2>
+        <br>
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-success"> Log In </button>
+    </div>
+</form>
+<!--</div>-->
+
+{% endblock %}
+</body>
+</html>
